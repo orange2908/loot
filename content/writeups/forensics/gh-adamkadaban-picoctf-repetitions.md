@@ -1,0 +1,25 @@
+---
+title: "repetitions - PicoCTF 2023"
+category: "forensics"
+subcategory: "forensics"
+type: "writeup"
+tags: ["forensics", "cyberchef", "repetitions", "forensic", "picoctf", "adamkadaban"]
+summary: "Solved in cyberchefFromBase64('A-Za-z0-9%2B/%3D',true,false)FromBase64('A-Za-z0-9%2B/%3D',true,false)FromBase64('A-Za-z0-9%2B/%3D',true,false)FromBase64('A-Za-z0-9%2B/%3D',true,false)FromBase64('A-Za-"
+source:
+  name: "Adamkadaban/CTFs"
+  url: "https://github.com/Adamkadaban/CTFs/blob/ea683463e77d8867fb31dae4cb4fa6dd3da68852/1.CTFs/PicoCTF%202023/general/repetitions/README.md"
+ctf:
+  name: "PicoCTF"
+  year: 2023
+  challenge: "repetitions"
+---
+
+## Source
+
+- **CTF:** PicoCTF 2023
+- **Challenge:** repetitions
+- **Repository:** [Adamkadaban/CTFs](https://github.com/Adamkadaban/CTFs)
+- **File:** <https://github.com/Adamkadaban/CTFs/blob/ea683463e77d8867fb31dae4cb4fa6dd3da68852/1.CTFs/PicoCTF%202023/general/repetitions/README.md>
+
+---
+Solved in [cyberchef](https://gchq.github.io/CyberChef/#recipe=From_Base64('A-Za-z0-9%2B/%3D',true,false)From_Base64('A-Za-z0-9%2B/%3D',true,false)From_Base64('A-Za-z0-9%2B/%3D',true,false)From_Base64('A-Za-z0-9%2B/%3D',true,false)From_Base64('A-Za-z0-9%2B/%3D',true,false)From_Base64('A-Za-z0-9%2B/%3D',true,false)&input=Vm1wR1UxRXlSWGxVV0d4VFlteEtWVll3WkZOV2JHeHlWMjFHVjFKdGVEQlViRnBQWVd4S2RGVnNhRnBXVmxVeFdWWmFTMVpXV25WaApSbVJYWld0YWIxZFdXbXRTTWs1eVRsWldXQXBpVlZwVVZtMTBkMVZXWkZkVmEyUnBZbFphV0ZadE5WZFZaM0JwVTBWS2VsZFdVa05rCk1sWlhWbGhvV0dKWVFrOVZiRkpYVTBaa2NWUnVUbGRhTTBKWlZXcEdTMlZXV2tkYVNHUlhDazFzV25wV1YzaGhWbTFLUms1WE9WVlcKVmtwRVZHeGFZVmRGTVZoU2JGWmhUVEJLV1ZaR1dtRlhiVlp6VjJ0a1drMHlhRlJEYlVwWFYyNXNWVlp0YUZSV01HUkhaRWRXUmxacwphR2tLWWxScmVsWkVSbGRVTWtwelVXeFdUbEpZVGt4RFp6MDlDZz09Cg)

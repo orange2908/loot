@@ -1,0 +1,96 @@
+---
+title: "Lattice (RsaCtfTool)"
+category: "crypto"
+subcategory: "rsa"
+type: "script"
+tags: ["rsactftool", "rsa", "lattice", "sage", "eval", "subprocess", "crypto"]
+summary: "!/usr/bin/env python3"
+tools: ["RsaCtfTool"]
+source:
+  name: "RsaCtfTool/RsaCtfTool"
+  url: "https://github.com/RsaCtfTool/RsaCtfTool/blob/8c9a9ecb85ca/src/RsaCtfTool/attacks/single_key/lattice.py"
+license: "MIT"
+---
+
+## What it does
+
+!/usr/bin/env python3
+
+## Where it lives
+
+- Vendored locally at `vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/lattice.py`
+- Upstream: <https://github.com/RsaCtfTool/RsaCtfTool/blob/8c9a9ecb85ca/src/RsaCtfTool/attacks/single_key/lattice.py>
+
+## Usage
+
+```bash
+# read or run it straight from the vendored copy
+$EDITOR vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/lattice.py
+python3 vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/lattice.py
+```
+
+## Code
+
+```python
+#!/usr/bin/env python3
+
+import ast
+import subprocess
+from RsaCtfTool.attacks.abstract_attack import AbstractAttack, SAGE_MIN_TIMEOUT
+from RsaCtfTool.lib.utils import rootpath
+
+
+class Attack(AbstractAttack):
+    def __init__(self, timeout=60):
+        super().__init__(max(timeout, SAGE_MIN_TIMEOUT))
+        self.speed = AbstractAttack.speed_enum["medium"]
+        self.required_binaries = ["sage"]
+        self.required_scripts = ["sage/lattice.sage"]
+
+    def attack(self, publickey, cipher=[], progress=True):
+        """Run simple lattice attack with a timeout"""
+        try:
+            if getattr(publickey, "p", None) is None:
+                self.logger.error(
+                    "[!] simple lattice attack is for partial keys only..."
+                )
+                return None, None
+            sageresult = subprocess.check_output(
+                [
+                    "sage",
+                    f"{rootpath}/sage/lattice.sage",
+                    str(publickey.n),
+                    str(publickey.p),
+                ],
+                timeout=self.timeout,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            p, q = (int(value) for value in ast.literal_eval(sageresult))
+            if p * q != publickey.n:
+                raise ValueError("Sage returned factors that do not match n")
+            return self.create_private_key_from_pqe(
+                p, q, publickey.e, publickey.n
+            )
+
+        except (
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            SyntaxError,
+            TypeError,
+            ValueError,
+        ):
+            return (None, None)
+
+    def test(self):
+        raise NotImplementedError
+
+```
+
+## Attribution
+
+- **Author:** RsaCtfTool contributors
+- **Repository:** <https://github.com/RsaCtfTool/RsaCtfTool> (commit `8c9a9ecb85ca`)
+- **Licence:** MIT — see `vendor/RsaCtfTool/LICENSE`
+
+This file is a wrapper for search and reference. The code is the original authors' work, redistributed unmodified under its own licence.

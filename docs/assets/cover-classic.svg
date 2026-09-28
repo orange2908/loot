@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" width="1200" height="380"
+     role="img" aria-label="CTF-Brain cover: a cat beside a captured flag and a torii gate, over a stylised wave">
+  <title>CTF-Brain</title>
+
+  <defs>
+    <pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1e2a38"/>
+    </pattern>
+    <linearGradient id="vignette" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0"    stop-color="#0b0f14" stop-opacity="0"/>
+      <stop offset="0.55" stop-color="#0b0f14" stop-opacity="0.5"/>
+      <stop offset="1"    stop-color="#0b0f14" stop-opacity="0.88"/>
+    </linearGradient>
+    <clipPath id="frame"><rect width="1200" height="380" rx="14"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="380" fill="#0b0f14"/>
+    <rect width="1200" height="380" fill="url(#grid)" opacity="0.6"/>
+
+    <!-- rising sun behind the gate -->
+    <circle cx="904" cy="172" r="116" fill="#e2574c" opacity="0.18"/>
+    <circle cx="904" cy="172" r="116" fill="none" stroke="#e2574c" stroke-opacity="0.42" stroke-width="1.5"/>
+    <circle cx="904" cy="172" r="156" fill="none" stroke="#e2574c" stroke-opacity="0.13" stroke-width="1"/>
+
+    <!-- falling code -->
+    <g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#4fc3f7">
+      <g opacity="0.32">
+        <text x="1076" y="46">01001100</text><text x="1076" y="72">gcd(n1,n2)</text>
+        <text x="1076" y="98">tcache</text><text x="1076" y="124">0x7ffe</text>
+      </g>
+      <g opacity="0.17">
+        <text x="1076" y="154">__free_hook</text><text x="1076" y="180">LLL</text>
+        <text x="1076" y="206">%n</text><text x="1076" y="232">../../etc</text>
+      </g>
+      <g opacity="0.09">
+        <text x="1076" y="260">rop</text><text x="1076" y="286">xor</text>
+      </g>
+    </g>
+
+    <!-- torii -->
+    <g>
+      <path d="M822 302 V148 M986 302 V148" stroke="#e2574c" stroke-width="14"/>
+      <path d="M800 148 H1008" stroke="#e2574c" stroke-width="14"/>
+      <path d="M790 128 C 860 116, 948 116, 1018 128 L 1018 141 C 948 129, 860 129, 790 141 Z" fill="#e2574c"/>
+      <path d="M834 192 H974" stroke="#e2574c" stroke-width="10"/>
+      <path d="M904 128 V192" stroke="#e2574c" stroke-width="7"/>
+    </g>
+
+    <!-- captured flag, planted between the cat and the gate -->
+    <g>
+      <path d="M742 302 V 164" stroke="#8296ac" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="742" cy="160" r="5" fill="#8296ac"/>
+      <path d="M744 170 L 806 190 L 744 210 Z" fill="#4fc3f7"/>
+      <path d="M754 184 h 18 M754 195 h 28" stroke="#0b0f14" stroke-width="2.4"
+            stroke-linecap="round" opacity="0.5"/>
+    </g>
+
+    <!-- cat -->
+    <g transform="translate(360,14)">
+      <path d="M312 266 C 356 274, 372 234, 354 200" fill="none" stroke="#e8eef5"
+            stroke-width="13" stroke-linecap="round"/>
+      <path d="M204 286 C 198 234, 212 204, 258 200 C 304 204, 318 234, 312 286 Z" fill="#e8eef5"/>
+      <path d="M226 156 L 219 113 L 253 142 Z" fill="#e8eef5"/>
+      <path d="M290 156 L 297 113 L 263 142 Z" fill="#e8eef5"/>
+      <path d="M231 150 L 227 126 L 246 143 Z" fill="#e2574c"/>
+      <path d="M285 150 L 289 126 L 270 143 Z" fill="#e2574c"/>
+      <circle cx="258" cy="174" r="45" fill="#e8eef5"/>
+      <ellipse cx="241" cy="170" rx="5.5" ry="9.5" fill="#0b0f14"/>
+      <ellipse cx="275" cy="170" rx="5.5" ry="9.5" fill="#0b0f14"/>
+      <circle cx="242.6" cy="166.5" r="2.1" fill="#4fc3f7"/>
+      <circle cx="276.6" cy="166.5" r="2.1" fill="#4fc3f7"/>
+      <path d="M253 189 L 263 189 L 258 194.5 Z" fill="#e2574c"/>
+      <path d="M258 195 C 254 200.5, 247.5 200.5, 244.5 196.5
+               M258 195 C 262 200.5, 268.5 200.5, 271.5 196.5"
+            fill="none" stroke="#0b0f14" stroke-width="1.7" stroke-linecap="round"/>
+      <g stroke="#0b0f14" stroke-width="1.3" stroke-linecap="round" opacity="0.5">
+        <path d="M214 180 H 234 M216 190 H 235 M302 180 H 282 M300 190 H 281"/>
+      </g>
+      <path d="M231 212 C 246 220, 270 220, 285 212" fill="none" stroke="#ffb74d"
+            stroke-width="6" stroke-linecap="round"/>
+      <circle cx="258" cy="219" r="6.5" fill="#ffb74d"/>
+      <ellipse cx="215" cy="278" rx="17" ry="10" fill="#dfe7ef"/>
+      <ellipse cx="301" cy="278" rx="17" ry="10" fill="#dfe7ef"/>
+    </g>
+
+    <!-- wave -->
+    <g>
+      <path d="M-20 300 C 120 272, 250 312, 380 300 C 520 287, 640 318, 780 306
+               C 920 294, 1060 320, 1220 300 L1220 400 L-20 400 Z" fill="#14384a"/>
+      <path d="M-20 334 C 140 310, 260 350, 400 334 C 540 318, 660 350, 800 338
+               C 940 326, 1080 352, 1220 332 L1220 400 L-20 400 Z" fill="#0e2733"/>
+      <g fill="none" stroke="#4fc3f7" stroke-linecap="round">
+        <path d="M58 300 C 82 270, 124 264, 150 283 C 130 268, 100 270, 80 287"
+              stroke-width="3" stroke-opacity="0.55"/>
+        <path d="M150 283 C 161 274, 174 274, 181 283" stroke-width="2.4" stroke-opacity="0.32"/>
+        <path d="M618 310 C 640 286, 676 282, 696 298 C 680 286, 654 288, 638 300"
+              stroke-width="3" stroke-opacity="0.34"/>
+        <path d="M1004 304 C 1024 284, 1052 281, 1070 294" stroke-width="2.4" stroke-opacity="0.24"/>
+      </g>
+      <g fill="#4fc3f7" opacity="0.3">
+        <circle cx="154" cy="278" r="2.6"/><circle cx="183" cy="281" r="2"/>
+        <circle cx="700" cy="294" r="2.3"/><circle cx="1074" cy="291" r="2"/>
+      </g>
+    </g>
+
+    <rect x="660" y="0" width="540" height="380" fill="url(#vignette)" opacity="0.4"/>
+
+    <!-- wordmark -->
+    <g font-family="ui-monospace, Menlo, Consolas, monospace">
+      <text x="64" y="118" font-size="60" font-weight="700" fill="#dbe4ee" letter-spacing="-2">CTF</text>
+      <text x="176" y="118" font-size="60" font-weight="700" fill="#4fc3f7" letter-spacing="-2">/</text>
+      <text x="212" y="118" font-size="60" font-weight="700" fill="#dbe4ee" letter-spacing="-2">BRAIN</text>
+      <path d="M66 142 H 470" stroke="#1e2a38" stroke-width="1.5"/>
+      <text x="66" y="170" font-size="15.5" fill="#8296ac">offline, searchable CTF knowledge base</text>
+      <text x="66" y="196" font-size="13" fill="#5a6b7d">writeups · techniques · cheatsheets · scripts</text>
+    </g>
+
+    <rect x="0.5" y="0.5" width="1199" height="379" rx="14" fill="none" stroke="#1e2a38"/>
+  </g>
+</svg>

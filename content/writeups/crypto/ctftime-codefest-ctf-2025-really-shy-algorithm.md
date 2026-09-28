@@ -1,0 +1,176 @@
+---
+title: "Really Shy Algorithm - Codefest CTF 2025"
+category: "crypto"
+subcategory: "rsa"
+type: "writeup"
+tags: ["homomorphic", "crypto", "rsa", "gcd", "proof-of-work", "codefest-ctf", "codefest-ctf-2025", "2025", "ctf-writeup"]
+summary: "This weekend was busy with 4 or 5 simultaneous CTFs tracked on CTFTime."
+source:
+  name: "CTFtime writeup #39885"
+  url: "https://ctftime.org/writeup/39885"
+original_source: "https://ctf.rip/write-ups/crypto/codefest-2025/"
+ctf:
+  name: "Codefest CTF 2025"
+  year: 2025
+  challenge: "Really Shy Algorithm"
+---
+
+## Metadata
+
+- **CTF:** Codefest CTF 2025
+- **Task:** Really Shy Algorithm
+- **Author team:** Capture the Swag
+- **CTFtime tags:** homomorphic, crypto, rsa
+- **CTFtime:** <https://ctftime.org/writeup/39885>
+- **Original writeup:** <https://ctf.rip/write-ups/crypto/codefest-2025/>
+
+---
+This weekend was busy with 4 or 5 simultaneous CTFs tracked on CTFTime. I played a few and enjoyed Codefest 2025 organized by the Department of Computer Science and Engineering at IIT BHU. I played across the usual pwn, rev, crypto categories. One I chose to write-up was the `crypto/Really Shy Algorithm` challenge.
+
+#### Really Shy Algorithm - crypto - 269 points
+
+This challenge comes with no files but a remote connection to a container running the challenge. The clue is:
+
+```
+    This program will decrypt any ciphertext. But keep in mind,
+    the program is a little shy and will not answer sometimes.
+```
+
+When connecting to the server we get :
+
+```
+    Really Shy Algorithm
+    
+    Hi, umm, here's the encrypted flag
+    ciphertext = 397386617442819865446784287912029230622640145505891725870
+    0639865036444672747254989165068837702482204231463546758974165299378567
+    8757474828920987100715629007321531225978500938666522560519529948794807
+    4027366348247631507065874749427005199295268510268852949541065508566336
+    6321563457715198300693451893196150905759416600583588333231347398370786
+    7495612276232198370531163857524773380051810796282330164426094700145684
+    2431037840704725379798721333237840830809325543591944199279965996327489
+    1068723895439308785714968025580043872254921590376478981118938096462506
+    25264222518040347109129119802930987484378006270276333005362635689901
+    n = 172924977122906355459022703441642000493641361318033180029961514862
+    5347914980028419259691357054513989590052303793846264841260208146786821
+    3363824340723051244751499338245163056229183957835715444360980788328981
+    0628107049639668719487117900843714887226161579785929452798595538638494
+    5439216544638873386386922530559728218068998345416060221606978292532093
+    0504937995374222398376843688000670887392870439727100312871922892146365
+    5973623101759451588312216988277172793070201047589898233614398103627470
+    9679840803008090857433051518979138816904087507872213740125017696999836
+    4635042546236739726854311555580919978850685457309698149386117
+    
+    You can give me any ciphertext to decrypt in integer format
+    
+    
+    ciphertext: 
+    Plot Twist: It's been 2 seconds and you haven't input anything. This is taking too long. Bye
+```
+
+The challenge times out. Attempting the simple case of just decrypting the flag ciphertext gives us an error:
+
+```
+    Plot Twist: Sorry, I cannot decrypt the flag
+```
+
+Fair enough.
+
+Since we can’t directly decrypt the flag, the solution here is to decrypt a number related to the flag. Since RSA is “multiplicative homomorphic” we can do that relatively easily.
+
+What do I mean by this? Simply that:
+
+`encrypt(message1) * encrypt(message2) = encrypt(message1 * message2) % n`
+
+So since we know `n`, `c` and can know a provided ciphertext and receive the decryption of that we can use that to derive the original encrypted plaintext.
+
+Here’s the steps we go through.
+
+#### Connect to the service and get the parameters
+
+```
+    #!/usr/bin/python
+    from pwn import *
+    import random
+    from Crypto.Util.number import long_to_bytes, GCD, inverse
+    
+    p = remote("codefest-ctf.iitbhu.tech", 40885)
+    
+    # Receive the encrypted flag and the modulus from the server
+    p.recvuntil(b"ciphertext = ")
+    flagct = int(p.recvline().decode())
+    p.recvuntil(b"n = ")
+    n = int(p.recvline().decode())
+    
+    # We'll need the public exponent. The server doesn't give it
+    # to us so we just guess the most common exponent.
+    e = 65537 
+    
+    log.info(f"flag ct: {flagct}")
+    log.info(f"n: {n}")
+```
+
+#### Choose an arbitrary number to encrypt. It must be co-prime to n
+
+```
+    # Choose some valid x to encrypt.
+    while True:
+        x = random.randint(2, 4096)
+        if GCD(x, n) == 1:
+            break
+```
+
+#### Calculate the inverse of our number x mod n and encrypt it with parameters we know
+
+```
+    x_inv = inverse(x, n)
+    x_enc = pow(x, 65537, n)
+```
+
+#### Calculate the related number attack_x
+
+```
+    attack_x = (x_enc * flagct) % n
+```
+
+#### Send our attack to the server and calculate the flag
+
+```
+    # Send to server to decrypt.
+    ct = str(attack_x).encode()
+    p.recvuntil(b"ciphertext: ")
+    p.sendline(ct)
+    p.recvuntil(b"plaintext = ")
+    res = int(p.recvline().decode())
+    
+    flag = (res * x_inv) % n
+    
+    log.success(f"flag: {long_to_bytes(flag)}")
+    p.close()
+```
+
+Running this code against the server gets us the flag:
+
+```
+    $ ./solve.py 
+    [+] Opening connection to codefest-ctf.iitbhu.tech on port 40885: Done
+    [*] flag ct: 10273320205992333890680834587074066692313111727731958952694830701160479538913787758748688900488407518588341376832965252530271267985618453632070796994335838706295888294163618498003992097296713642060203263282371674282544782574140305483826441633363347438618662473623931435203629313587909822610683754576037018208007697286659296290545828254684909830713856481407095403887809291970333065984164433687075666230544276031526998575852778554674981521535656452031300117280054698423838170364707009336809236258278112338007530353354605658496227224118428691887199336812144234961840804106040700468412121420385768845870301290846395364585
+    [*] n: 15951749266492228293857871821965316707697540666490830823177671405736577031296668597684137949435694484987731415182184827518784181660171476965004649356892399805705950098329592157134149699389491506128536352465535266267632193552937745224117051782005489781026647842133459779360246601474527981267093406560990236065852442831752563824693507848864076057828388029877560512340515296925352841218207812639410646122507657798463638809770948676365132223006594135447006109022456281342309623971931597352185573311532021033711671246773824541354360349840887586757541704382583395806442191310589262850536064818563205576722579158632021609337
+    [+] flag: b'CodefestCTF{R5a_D3CRYptI0N_SErV1c3s_c4N_be_eaSIly_CRACK3D_eBqkEy0Y}'
+```
+
+Which scores us the points :)
+
+[Read More](https://ctf.rip/articles/security%20engineering/interviewing/interviewing-in-security-engineering/)
+
+### [KashiCTF 2025 Writeups](https://ctf.rip/write-ups/crypto/kashictf-2025/ "KashiCTF 2025 Writeups")
+
+This weekend I played in KashiCTF 2025 organized by the IIT BHU Cybersec. I played mostly the crypto challenges and had time to solve all...… [Continue reading](https://ctf.rip/write-ups/crypto/kashictf-2025/)
+
+#### [Interviewing in Tech: Security Engineer & Security Analyst](https://ctf.rip/articles/security%20engineering/interviewing/interviewing-in-security-engineering/ "Interviewing in Tech: Security Engineer & Security Analyst")
+
+Published on March 06, 2024
+
+#### [BSides Sydney 2023 Writeups](https://ctf.rip/write-ups/beginner/bsides-sydney-2023/ "BSides Sydney 2023 Writeups")
+
+Published on November 24, 2023

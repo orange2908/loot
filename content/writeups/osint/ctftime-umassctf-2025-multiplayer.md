@@ -1,0 +1,134 @@
+---
+title: "Multiplayer - UMassCTF 2025"
+category: "osint"
+subcategory: "metadata"
+type: "writeup"
+tags: ["osint", "exiftool", "multiplayer", "metadata", "umassctf", "umassctf-2025", "2025", "ctf-writeup"]
+summary: "Multiplayer - UmassCTF2025"
+source:
+  name: "CTFtime writeup #40203"
+  url: "https://ctftime.org/writeup/40203"
+original_source: "https://k3sero.github.io/posts/Multiplayer-UmassCTF2025/"
+ctf:
+  name: "UMassCTF 2025"
+  year: 2025
+  challenge: "Multiplayer"
+---
+
+## Metadata
+
+- **CTF:** UMassCTF 2025
+- **Task:** Multiplayer
+- **Author team:** Caliphal Hounds
+- **CTFtime:** <https://ctftime.org/writeup/40203>
+- **Original writeup:** <https://k3sero.github.io/posts/Multiplayer-UmassCTF2025/>
+
+---
+Multiplayer - UmassCTF2025 __
+
+Contenido __
+
+Multiplayer - UmassCTF2025
+
+__
+
+Autor del reto: `Posco`
+
+Dificultad: Fácil
+
+## Enunciado __
+
+“You and a friend want to play Fireboy and Watergirl in the Forest Temple, but you both live quite far away. You both want to meet up roughly halfway by distance, you want to meet at a place that has public computers, and you want to meet up at a place that shares the name of the street where you both live. What’s the address of where that could be?
+
+Flag format: UMASS{Address as on Google Maps}, e.g. UMASS{650 N Pleasant St, Amherst, MA 01003} for the Integrative Learning Center at UMass.”
+
+## Archivos __
+
+Este reto, nos dan los siguiente archivos.
+
+  * `Multiplayer 1` : Contiene la 1º localización
+  * `Multiplayer 2` : Contiene la 2º localización
+
+
+Archivos utilizados en mi [repositorio de Github](https://github.com/k3sero/Blog_Content/tree/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer).
+
+[![Mul1](https://raw.githubusercontent.com/k3sero/Blog_Content/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/multiplayer1.jpeg)](https://raw.githubusercontent.com/k3sero/Blog_Content/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/multiplayer1.jpeg)
+
+[![Mul2](https://raw.githubusercontent.com/k3sero/Blog_Content/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/multiplayer2.jpeg)](https://raw.githubusercontent.com/k3sero/Blog_Content/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/multiplayer2.jpeg)
+
+## Analizando el reto __
+
+En este reto tenemos que encontrar la ubicación donde se reunirán a jugar a un juego. La información que nos aporta el enunciado es la siguiente.
+
+____
+
+`
+
+```
+    1
+    2
+```
+
+| 
+
+```
+    La ubicación tiene ordenadores públicos y se encuentra en el punto medio
+    El nombre del lugar comparte el nombre de la calle donde viven.
+```  
+  
+---|---  
+`
+
+## Solver __
+
+Primero, debemos encontrar los lugares pertenecientes a ambas imágenes. Para ello utilizaremos las herramientas mencionadas[aquí](https://k3sero.github.io/posts/Gunnar-Vacations-THCON2025/) para encontrar realizar Geolocalizar los lugares.
+
+Para la imagen `multiplayer1` podemos encontrar que su ubicación es [“19th at Pennsylvania SB”](https://www.google.com/maps/@40.6130276,-75.5048425,3a,81.2y,41.12h,83.17t/data=!3m7!1e1!3m5!1sUlfcq5EKgG2V9LRTbLxfnQ!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D6.829999999999998%26panoid%3DUlfcq5EKgG2V9LRTbLxfnQ%26yaw%3D41.12!7i16384!8i8192?authuser=0&hl=es&entry=ttu&g_ep=EgoyMDI1MDQyMC4wIKXMDSoASAFQAw%3D%3D)
+
+[![ubi1](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi1.png)](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi1.png)
+
+Para la imagen `multiplayer2` podemos encontrar que su ubicación es [“Pennsylvania Ave & Norfolk St”](https://www.google.com/maps/@37.6496951,-77.4639334,3a,75y,352.11h,86.41t/data=!3m7!1e1!3m5!1slmKLvrETVqPuVByjzdpsBw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D3.5900000000000034%26panoid%3DlmKLvrETVqPuVByjzdpsBw%26yaw%3D352.11!7i16384!8i8192?hl=es&entry=ttu&g_ep=EgoyMDI1MDQyMC4wIKXMDSoASAFQAw%3D%3D)
+
+[![ubi2](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi2.png)](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi2.png)
+
+Si ponemos los puntos en un mapa, veremos lo siguiente.
+
+[![mid](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi_media.png)](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi_media.png)
+
+Como en el enunciado del reto nos dicen que la ubicación se encuentra en el punto medio de ambos, sabemos que la ubicación que nos piden debe estar en `Baltimore`. Además si miramos sus direcciones, llegamos a la conclusión de que sus calles se llaman igual “Pennsylvania Ave Street” por lo que sabemos que el lugar va a contener la palabra `Pennsylvania`
+
+Tras buscar en Baltimore, finalmente encontramos la ubicación.
+
+[![ubi_final](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi_final.png)](https://raw.githubusercontent.com/k3sero/Blog_Content/refs/heads/main/Competiciones_Internacionales_Writeups/2025/UmassCTF2025/Osint/Multiplayer/img/ubi_final.png)
+
+## Flag __
+
+`UMASS{39.310,-76.642}`
+
+##  PD __
+
+Créditos a[sumurazmirzayev](https://medium.com/@sumurazmirzayev/multiplayer-umassctf-2025-osint-3638afb867f8).
+
+Al revisasr las soluciones, he visto una técnica muy buena. Normalmente hay imágenes que suelen tener en metadatos su la ubicación de donde se tomaron, para ello es muy recomendable siempre utilizar `exiftool` para intentar extraer esa información.
+
+En este caso, estas imágenes pertenecen a “Street View 360” y por tanto tienen un identificador único llamado “Panorama ID” el cual identifica la ubicación exacta.
+
+[![id1](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*tldE0krcUZbDdjED_UVvNg.png)](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*tldE0krcUZbDdjED_UVvNg.png)
+
+[![id2](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*JRDrKniQweKuSk4IeGjiGg.png)](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*JRDrKniQweKuSk4IeGjiGg.png)
+
+Una vez obtenido su identificador, nos vamos a la aplicación “Street View 360” y buscamos esos identificadores.
+
+[![ids](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*_UgaTf85IT1kn6-Ag5Y7og.png)](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*_UgaTf85IT1kn6-Ag5Y7og.png) [![ids2](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*E2isPK3Gvl2ICTq7RhRzNg.png)](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*E2isPK3Gvl2ICTq7RhRzNg.png)
+
+Por último obtenemos sus coordenadas.
+
+[![coords](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*4e5Ba04i8iTDiGoUEEgGDA.png)](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*4e5Ba04i8iTDiGoUEEgGDA.png)
+
+__[Writeups Competiciones Internacionales](https://k3sero.github.io/categories/writeups-competiciones-internacionales/), [Osint](https://k3sero.github.io/categories/osint/)
+
+__[Dificultad - Fácil](https://k3sero.github.io/tags/dificultad-f%C3%A1cil/) [Osint](https://k3sero.github.io/tags/osint/) [Osint - Geo](https://k3sero.github.io/tags/osint-geo/) [Otros - Writeups](https://k3sero.github.io/tags/otros-writeups/) [UmassCTF](https://k3sero.github.io/tags/umassctf/)
+
+Esta entrada está licenciada bajo [ CC BY 4.0 ](https://creativecommons.org/licenses/by/4.0/) por el autor.
+
+Compartir [ __](https://twitter.com/intent/tweet?text=Multiplayer%20-%20UmassCTF2025%20-%20Kesero&url=https%3A%2F%2Fk3sero.github.io%2Fposts%2FMultiplayer-UmassCTF2025%2F "Twitter") [ __](https://www.facebook.com/sharer/sharer.php?title=Multiplayer%20-%20UmassCTF2025%20-%20Kesero&u=https%3A%2F%2Fk3sero.github.io%2Fposts%2FMultiplayer-UmassCTF2025%2F "Facebook") [ __](https://t.me/share/url?url=https%3A%2F%2Fk3sero.github.io%2Fposts%2FMultiplayer-UmassCTF2025%2F&text=Multiplayer%20-%20UmassCTF2025%20-%20Kesero "Telegram") __

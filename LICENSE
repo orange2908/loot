@@ -1,0 +1,57 @@
+MIT License
+
+Copyright (c) 2026 CTF-Brain contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------
+
+SCOPE
+
+The MIT licence above covers the platform code only:
+
+    ctfbrain/    the indexer, search engine, CLI and web application
+    ingest/      the ingestion pipelines
+    tests/
+    docs/
+    Makefile, Dockerfile, docker-compose.yml, pyproject.toml
+
+It does NOT cover the knowledge base contents.
+
+CONTENT AND THIRD-PARTY MATERIAL
+
+Everything under content/ and vendor/ that was ingested, mirrored or vendored
+belongs to its original authors and remains under its own licence. Each
+document records where it came from:
+
+  * ingested documents carry a `source:` link in their frontmatter
+  * mirrored corpora also carry a `license:` field, and are listed in
+    content/reference/ext-CORPORA-PROVENANCE.md with their commit and licence
+  * vendored repositories keep their upstream LICENSE file, and are listed in
+    vendor/PROVENANCE.md with their commit and licence
+
+Two mirrored corpora are Creative Commons NonCommercial:
+
+  * CTF Wiki (ctf-wiki/ctf-wiki)            CC BY-NC-SA 4.0
+  * HackTricks (HackTricks-wiki/hacktricks) CC BY-NC 4.0
+
+Because of those, THIS MIRROR MUST NOT BE REDISTRIBUTED COMMERCIALLY.
+
+If you are an author and want your work removed, delete the file and run
+`make index`.

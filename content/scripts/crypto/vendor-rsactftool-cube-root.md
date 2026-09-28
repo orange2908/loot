@@ -1,0 +1,106 @@
+---
+title: "Cube Root (RsaCtfTool)"
+category: "crypto"
+subcategory: "rsa"
+type: "script"
+tags: ["rsactftool", "rsa", "low-exponent", "cube", "root", "cube-root", "crypto"]
+summary: "!/usr/bin/env python3 -*- coding: utf-8 -*-"
+tools: ["RsaCtfTool"]
+source:
+  name: "RsaCtfTool/RsaCtfTool"
+  url: "https://github.com/RsaCtfTool/RsaCtfTool/blob/8c9a9ecb85ca/src/RsaCtfTool/attacks/single_key/cube_root.py"
+license: "MIT"
+---
+
+## What it does
+
+!/usr/bin/env python3 -*- coding: utf-8 -*-
+
+## Where it lives
+
+- Vendored locally at `vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/cube_root.py`
+- Upstream: <https://github.com/RsaCtfTool/RsaCtfTool/blob/8c9a9ecb85ca/src/RsaCtfTool/attacks/single_key/cube_root.py>
+
+## Usage
+
+```bash
+# read or run it straight from the vendored copy
+$EDITOR vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/cube_root.py
+python3 vendor/RsaCtfTool/src/RsaCtfTool/attacks/single_key/cube_root.py
+```
+
+## Code
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from RsaCtfTool.attacks.abstract_attack import AbstractAttack
+
+
+class Attack(AbstractAttack):
+    def __init__(self, timeout=60):
+        super().__init__(timeout)
+        self.speed = AbstractAttack.speed_enum["medium"]
+
+    def attack(self, publickey, cipher=[], progress=True):
+        """Try to decrypt c if m < n/e and small e"""
+        if publickey.e < 3 or publickey.e & 1 == 0:
+            return None, None
+        plain = []
+        if (cipher is None) or (len(cipher) < 1):
+            self.logger.info(
+                "[-] No ciphertexts specified, skipping the cube_root test..."
+            )
+            return None, None
+        for c in cipher:
+            cipher_int = int.from_bytes(c, "big")
+            low = 0
+            high = cipher_int
+            while low < high:
+                mid = (low + high) >> 1
+                if pow(mid, publickey.e) < cipher_int:
+                    low = mid + 1
+                else:
+                    high = mid
+            # m^e was reduced mod n, so a non-perfect e-th root means the
+            # plaintext is not actually small: reporting it would be a
+            # bogus result that also stops the remaining attacks.
+            if pow(low, publickey.e) != cipher_int:
+                continue
+            plain.append(low.to_bytes((low.bit_length() + 7) // 8, byteorder="big"))
+        if not plain:
+            return None, None
+        return None, plain
+
+    def test(self):
+        from RsaCtfTool.lib.keys_wrapper import PublicKey
+
+        key_data = """-----BEGIN PUBLIC KEY-----
+MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEA6FqEbjr1AgKR+WtbpHa3
+1kvsipKxGoKPWtZDCLnrzvwnyVJVdlyvKEYVqVGHhiuJU2RH+8oSQsGF/yjMaOzc
+CxB5/cCrXAFere5nsN2SQsAEG8xS1ccn9YWoEfKAJrsdxUZd5CoSkwlQzvX01JMN
+ap5u35o+emK3/ny5QdzZpoie0xp4l8uCFR/cp33cvZj2+VOP4ch6szpTG2u0h7sP
+SfNvAHUqrZ8YscwkWEUk6N+55mQMviuLV8cqY1O9Lu+Q8yL5EtZj0vtxhb4Pj/ad
++GMzczpiZxZDjfpEVHaP67ntl7Ut8zhfWjQ69/Un7hjjdqQuh7GPGfhGd6ohbX6E
+uQIBAw==
+-----END PUBLIC KEY-----"""
+
+        cipher = 2205316413931134031074603746928247799030155221252519872650101242908540609117693035883827878696406295617513907962419726541451312273821810017858485722109359971259158071688912076249144203043097720816270550387459717116098817458584146690177125
+
+        result = self.attack(
+            PublicKey(key_data),
+            [cipher.to_bytes((cipher.bit_length() + 7) // 8, "big")],
+            progress=False,
+        )
+        return result != (None, None)
+
+```
+
+## Attribution
+
+- **Author:** RsaCtfTool contributors
+- **Repository:** <https://github.com/RsaCtfTool/RsaCtfTool> (commit `8c9a9ecb85ca`)
+- **Licence:** MIT — see `vendor/RsaCtfTool/LICENSE`
+
+This file is a wrapper for search and reference. The code is the original authors' work, redistributed unmodified under its own licence.

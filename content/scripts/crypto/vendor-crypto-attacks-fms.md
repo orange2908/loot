@@ -1,0 +1,77 @@
+---
+title: "Fms (crypto-attacks)"
+category: "crypto"
+subcategory: "aes"
+type: "script"
+tags: ["crypto-attacks", "rc4", "padding-oracle", "fms", "crypto"]
+summary: "fms - vendored from jvdsn/crypto-attacks."
+tools: ["crypto-attacks"]
+source:
+  name: "jvdsn/crypto-attacks"
+  url: "https://github.com/jvdsn/crypto-attacks/blob/d42a3df980bf/attacks/rc4/fms.py"
+license: "MIT"
+---
+
+## What it does
+
+`attacks/rc4/fms.py` from jvdsn/crypto-attacks: Python implementations of a large catalogue of cryptographic attacks.
+
+## Where it lives
+
+- Vendored locally at `vendor/crypto-attacks/attacks/rc4/fms.py`
+- Upstream: <https://github.com/jvdsn/crypto-attacks/blob/d42a3df980bf/attacks/rc4/fms.py>
+
+## Usage
+
+```bash
+# read or run it straight from the vendored copy
+$EDITOR vendor/crypto-attacks/attacks/rc4/fms.py
+python3 vendor/crypto-attacks/attacks/rc4/fms.py
+```
+
+## Code
+
+```python
+from collections import Counter
+
+
+def _possible_key_bit(key, c):
+    s = [i for i in range(256)]
+    j = 0
+    for i in range(len(key)):
+        j = (j + s[i] + key[i]) % 256
+        tmp = s[i]
+        s[i] = s[j]
+        s[j] = tmp
+
+    return (c[0] - j - s[len(key)]) % 256
+
+
+def attack(encrypt_oracle, key_len):
+    """
+    Recovers the hidden part of an RC4 key using the Fluhrer-Mantin-Shamir attack.
+    :param encrypt_oracle: the padding oracle, returns the encryption of a plaintext under a hidden key concatenated with the iv
+    :param key_len: the length of the hidden part of the key
+    :return: the hidden part of the key
+    """
+    key = bytearray([3, 255, 0])
+    for a in range(key_len):
+        key[0] = a + 3
+        possible = Counter()
+        for x in range(256):
+            key[2] = x
+            c = encrypt_oracle(key[:3], b"\x00")
+            possible[_possible_key_bit(key, c)] += 1
+        key.append(possible.most_common(1)[0][0])
+
+    return key[3:]
+
+```
+
+## Attribution
+
+- **Author:** Joachim Vandersmissen (jvdsn)
+- **Repository:** <https://github.com/jvdsn/crypto-attacks> (commit `d42a3df980bf`)
+- **Licence:** MIT — see `vendor/crypto-attacks/LICENSE`
+
+This file is a wrapper for search and reference. The code is the original authors' work, redistributed unmodified under its own licence.

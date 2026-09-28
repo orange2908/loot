@@ -1,0 +1,24 @@
+services:
+  ctfbrain:
+    build: .
+    image: ctfbrain:latest
+    container_name: ctfbrain
+    ports:
+      - "${CTFBRAIN_PORT:-8000}:8000"
+    volumes:
+      # Live-edit the knowledge base from the host; the entrypoint reindexes on start.
+      - ./content:/app/content:ro
+      # Keep the built index (and ingestion caches) out of the image layer.
+      - ctfbrain-data:/app/data
+    environment:
+      PORT: "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  ctfbrain-data:

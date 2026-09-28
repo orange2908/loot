@@ -1,0 +1,39 @@
+---
+title: "movfuscation1 - SUSCTF 2018"
+category: "rev"
+subcategory: "static-analysis"
+type: "writeup"
+tags: ["rev", "ida", "movfuscation1", "static-analysis", "reverse-engineering", "susctf"]
+summary: "rev writeup for \"movfuscation1\" from SUSCTF - techniques: ida, movfuscation1, static-analysis, reverse-engineering, susctf."
+source:
+  name: "susers/Writeups"
+  url: "https://github.com/susers/Writeups/blob/2b7977525e55889777895ac24b38ec87ca923d70/2018/SUSCTF/Reverse/movfuscation1/Write-up.md"
+ctf:
+  name: "SUSCTF"
+  year: 2018
+  challenge: "movfuscation1"
+---
+
+## Source
+
+- **CTF:** SUSCTF 2018
+- **Challenge:** movfuscation1
+- **Repository:** [susers/Writeups](https://github.com/susers/Writeups)
+- **File:** <https://github.com/susers/Writeups/blob/2b7977525e55889777895ac24b38ec87ca923d70/2018/SUSCTF/Reverse/movfuscation1/Write-up.md>
+
+---
+##  Title
+MoVfuscation1
+
+##  Tools
+IDA Pro
+
+##  Steps
+
+ELF文件由MoVfuscator编译，程序中包含一个充当字典的字符串和一个记录位置的数组，然后循环逐位比较，检测到正确则输出当前输入内容，错误则退出程序。
+
+由于程序全部由mov指令组成，可读性较差，由于庞大的代码量也不能用ida的反编译，只能反汇编，静态分析对于没有不熟悉这个混淆器的选手来说是十分困难的，可以借助动态分析，找出循环结构，根据输入错误的退出位置寻找上下文，找到字符比较的代码，然后可以下断点逐次循环获得程序中内置的用于比较的字符。
+
+上面这种解法难度较大，所以在编写题目时加入了正确内容回显，可以使用逐位爆破解题。比赛过程中也放出了hint提示爆破思路。
+
+[解密脚本](https://raw.githubusercontent.com/susers/Writeups/2b7977525e55889777895ac24b38ec87ca923d70/2018/SUSCTF/Reverse/movfuscation1/files_for_writeups/Crack.py)

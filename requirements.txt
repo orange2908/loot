@@ -1,0 +1,17 @@
+# Runtime — everything CTF-Brain needs to index, search and serve.
+PyYAML>=6.0
+markdown-it-py>=3.0
+mdit-py-plugins>=0.4
+linkify-it-py>=2.0
+Pygments>=2.17
+latex2mathml>=3.77
+fastapi>=0.110
+uvicorn[standard]>=0.27
+rich>=13.0
+jinja2>=3.1
+
+# Ingestion pipelines (ingest/*.py) — not needed just to read the knowledge base.
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+html2text>=2024.2.26

@@ -1,0 +1,387 @@
+---
+title: "[Misc] Breach - DamCTF 2025"
+category: "misc"
+type: "writeup"
+tags: ["misc", "breach", "damctf", "damctf-2025", "2025", "ctf-writeup"]
+summary: "\"hack the mainframe, choom."
+source:
+  name: "CTFtime writeup #40234"
+  url: "https://ctftime.org/writeup/40234"
+original_source: "https://k3sero.github.io/posts/Breach-Damctf2025/"
+ctf:
+  name: "DamCTF 2025"
+  year: 2025
+  challenge: "[Misc] Breach"
+---
+
+## Metadata
+
+- **CTF:** DamCTF 2025
+- **Task:** [Misc] Breach
+- **Author team:** Caliphal Hounds
+- **CTFtime:** <https://ctftime.org/writeup/40234>
+- **Original writeup:** <https://k3sero.github.io/posts/Breach-Damctf2025/>
+
+---
+Breach - DAMCTF2025 __
+
+Contenido __
+
+Breach - DAMCTF2025
+
+__
+
+Autor del reto: `tlop`
+
+Dificultad: Media
+
+## Enunciado __
+
+____
+
+`
+
+```
+    1
+```
+
+| 
+
+```
+    "hack the mainframe, choom. eddies for days. ssh chal@breach.chals.damctf.xyz pw: chalworksnow"
+```  
+  
+---|---  
+`
+
+## Archivos __
+
+En este reto, tenemos el siguiente archivo.
+
+  * `breach` : Contiene el binario del programa ejecutándose en el servidor.
+
+
+Archivos utilizados en mi [repositorio de Github](https://github.com/k3sero/Blog_Content/tree/main/Competiciones_Internacionales_Writeups/2025/Damctf2025/Misc/Breach).
+
+## Analizando el reto __
+
+Al ejecutar el binario nos encontramos el siguiente programa.
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    16
+    17
+    18
+    19
+    20
+    21
+    22
+    23
+    24
+```
+
+| 
+
+```
+    ████████████████████████████████████████████████████████████
+    █///////////////NET/TECH///////////////////////////////////█
+    
+    BUFFER: []
+    SEQUENCE REQUIRED TO UPLOAD
+    [63][66][20][3b][74] NEUTRALIZE MALWARE
+    [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+    
+    DEBUG: AXIS: x
+    [74] 63  63  2D  73  73  20  6C  63  2D 
+     3B  74  66  74  3B  6C  67  66  20  73 
+     74  67  67  74  61  20  3B  73  6C  2D 
+     67  52  64  6C  61  3B  73  20  66  73 
+     61  61  61  2D  6C  66  67  63  63  3B 
+     67  64  66  61  52  67  20  67  63  63 
+     66  64  64  52  74  2D  73  20  52  74 
+     6C  63  6C  20  20  67  66  6C  66  3B 
+     3B  64  2D  3B  6C  61  2D  61  61  20 
+     63  52  6C  74  64  66  3B  20  6C  52 
+    
+    Controls:
+    [Arrows] Move | [Space] Select | [Enter] Submit | [q] Quit
+    █///////////////////////////////////NET/TECH///////////////█
+    ████████████████████████████████████████████████████████████
+```  
+  
+---|---  
+`
+
+En el cual podemos encontrar una matriz de cadenas en hexadecimal la cual el usuario alterará entre fila y columna seleccionada cada vez que introduzca un la tecla `enter`
+
+## Solver __
+
+Primero vamos a entender cómo funciona el binario.
+
+  1. Comenzamos moviendo las filas de la matriz, es decir, tenemos acceso a movernos horizontalmente por la primera fila.
+
+  2. No podemos movernos diagonalmente.
+
+  3. Cada vez que introducimos un valor, los ejes cambian y tendremos acceso a las columnas (y viceversa)
+
+  4. El eje que podemos mover saldrá en la sección de `[DEBUG]`
+
+
+En este ejercicio, tenemos que encontrar la combinación de teclas que nos permita listar el contenido de la flag en la máquina perteneciente al servidor. Para ello primero que nada tenemos que ir jugando y probando combinaciones de valores de los inputs aportados. Despúes de analizar los valores, podemos encontrar que los siguientes caracteres corresponden a los siguientes valores únicos.
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+```
+
+| 
+
+```
+    20 - " "
+    2d - "-"
+    3b - ";"
+    6c - "l"
+    52 - "R"
+    61 - "a"
+    63 - "c"
+    64 - "d"
+    66 - "f"
+    67 - "g"
+    73 - "s"
+    74 - "t"
+```  
+  
+---|---  
+`
+
+Además, sabemos que todos los caracteres mencionados previamente, se traducirán en comandos `bash` por parte del servidor. Por ejemplo, vamos a probar a ejecutar el comando `ls` en el servidor. Para ello tendremos que introducir la secuencia `6c 73`. El resultado es el siguiente.
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+```
+
+| 
+
+```
+    ████████████████████████████████████████████████████████████
+    █///////////////NET/TECH///////////////////////////////////█
+    
+    BUFFER: [6C 73 ]
+    SEQUENCE REQUIRED TO UPLOAD
+    [63][66][20][3b][74] NEUTRALIZE MALWARE
+    [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+    
+    DEBUG: AXIS: x
+    BREACH FAILED. ERROR:
+    breach
+```  
+  
+---|---  
+`
+
+A simple vista puede parecer que no encontramos información, pero en el directorio actual de trabajo tenemos el binario `breack` por lo que está listando el contenido en mi carpeta. Si lo hacemos en el servidor en remoto, obtenemos lo siguente.
+
+´´´ ████████████████████████████████████████████████████████████ █///////////////NET/TECH///////////////////////////////////█
+
+BUFFER: [6C 73 ] SEQUENCE REQUIRED TO UPLOAD [63][66][20][3b][74] NEUTRALIZE MALWARE [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+
+DEBUG: AXIS: x BREACH FAILED. ERROR: alft altf atfl falt flat latf ´´´
+
+Podemos ver que existen unos archivos o directorios que se llaman `alft altf atfl falt flat latf` Para saber de qué se trata este conjunto, podemos utilizar el comando `ls -fl` el cual se traduce a la combinación `6c 73 20 2d 66 6c`. El resultado es el siguiente.
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+    13
+    14
+    15
+    16
+    17
+    18
+    19
+```
+
+| 
+
+```
+    ████████████████████████████████████████████████████████████
+    █///////////////NET/TECH///////////////////////////////////█
+    
+    BUFFER: [6C 73 20 2D 66 6C ]
+    SEQUENCE REQUIRED TO UPLOAD
+    [63][66][20][3b][74] NEUTRALIZE MALWARE
+    [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+    
+    DEBUG: AXIS: x
+    BREACH FAILED. ERROR:
+    total 0
+    drwxr-xr-x. 1 root root 18 May 10 07:44 .
+    drwxr-xr-x. 1 root root 39 May 12 00:09 ..
+    drwxr-xr-x. 1 root root 18 May 10 07:44 altf
+    drwxr-xr-x. 2 root root  6 May 10 07:44 alft
+    drwxr-xr-x. 2 root root  6 May 10 07:44 atfl
+    drwxr-xr-x. 2 root root  6 May 10 07:44 falt
+    drwxr-xr-x. 2 root root  6 May 10 07:44 flat
+    drwxr-xr-x. 2 root root  6 May 10 07:44 latf
+```  
+  
+---|---  
+`
+
+Perfecto, ahora sabemos que los archivos listados se corresponden con carpetas. Llegados a este punto, tendremos que introducir el comando `cat` seguido del nombre la carpeta y listar su contenido para observar los archivos en su interior (esto es posible por que tenemos el juego de caracteres a nuestra disposición) Por tanto, lo que ejecutaremos será el comando `cd <nombre_carpeta>;ls -l` que se traduce al comando `63 64 20 <nombre_carpeta> 3b 6c 73 20 2d 6c`.
+
+En este caso, podemos observar como la carpeta `altf` tiene un tamaño de 18 bytes y es la mayor de todas ellas, podemos asumir que la flag está en es directorio, así nos ahorraremos intentos en el camino.
+
+Por ejemplo, si queremos leer la carpeta `altf` tendremos que introducir el comando `63 64 20 61 6c 74 66 3b 6c 73 20 2d 6c`
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+```
+
+| 
+
+```
+    ████████████████████████████████████████████████████████████
+    █///////////////NET/TECH///////////////////////////////////█
+    
+    BUFFER: [63 64 20 61 6C 74 66 3B 6C 73 20 2D 6C ]
+    SEQUENCE REQUIRED TO UPLOAD
+    [63][66][20][3b][74] NEUTRALIZE MALWARE
+    [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+    
+    DEBUG: AXIS: y
+    BREACH FAILED. ERROR:
+    total 4
+    -rw-r--r--. 1 root root 35 May 10 04:48 flag
+```  
+  
+---|---  
+`
+
+Listo, hemos encontrado el archivo de la flag. Ahora solo queda listarla, para ello nuevamente utilizaremos el comando `cd altf;cat flag` que se corresponde con el comando `63 64 20 61 6C 74 66 3B 63 61 74 20 66 6C 61 67`. El resultado es el siguiente.
+
+____
+
+`
+
+```
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+    11
+    12
+```
+
+| 
+
+```
+    ████████████████████████████████████████████████████████████
+    █///////////////NET/TECH///////////////////////////////////█
+    
+    BUFFER: [63 64 20 61 6C 74 66 3B 63 61 74 20 66 6C 61 67 ]
+    SEQUENCE REQUIRED TO UPLOAD
+    [63][66][20][3b][74] NEUTRALIZE MALWARE
+    [67][20][67][3b][6c][74][3b][20] DATAMINE: COPY MALWARE
+    
+    DEBUG: AXIS: y
+    BREACH FAILED. ERROR:
+    bash: line 1: af: command not found
+    dam{ac<ident4lly_mad3_a_ds&a_ch@l}
+```  
+  
+---|---  
+`
+
+## Flag __
+
+`dam{ac<ident4lly_mad3_a_ds&a_ch@l}`
+
+__[Writeups Competiciones Internacionales](https://k3sero.github.io/categories/writeups-competiciones-internacionales/), [Miscelánea](https://k3sero.github.io/categories/miscel%C3%A1nea/)
+
+__[Misc](https://k3sero.github.io/tags/misc/) [Otros - Writeups](https://k3sero.github.io/tags/otros-writeups/) [Dificultad - Media](https://k3sero.github.io/tags/dificultad-media/) [Misc - Jail](https://k3sero.github.io/tags/misc-jail/) [DAMCTF](https://k3sero.github.io/tags/damctf/)
+
+Esta entrada está licenciada bajo [ CC BY 4.0 ](https://creativecommons.org/licenses/by/4.0/) por el autor.
+
+Compartir [ __](https://twitter.com/intent/tweet?text=Breach%20-%20DAMCTF2025%20-%20Kesero&url=https%3A%2F%2Fk3sero.github.io%2Fposts%2FBreach-Damctf2025%2F "Twitter") [ __](https://www.facebook.com/sharer/sharer.php?title=Breach%20-%20DAMCTF2025%20-%20Kesero&u=https%3A%2F%2Fk3sero.github.io%2Fposts%2FBreach-Damctf2025%2F "Facebook") [ __](https://t.me/share/url?url=https%3A%2F%2Fk3sero.github.io%2Fposts%2FBreach-Damctf2025%2F&text=Breach%20-%20DAMCTF2025%20-%20Kesero "Telegram") __

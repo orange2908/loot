@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CTF-Brain</title>
+<meta name="description" content="Offline, searchable CTF knowledge base: writeups, techniques, cheatsheets and ready-to-run scripts.">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/pygments.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <a class="brand" href="/">CTF<span class="dot">·</span>Brain <small>v1</small></a>
+
+    <div class="searchwrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+           stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path>
+      </svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" autofocus
+             placeholder="gcd · padding oracle · tcache · ssti jinja2 · cat:pwn type:cheatsheet">
+      <span class="kbdhint"><kbd>/</kbd><kbd>?</kbd></span>
+    </div>
+
+    <div class="topactions">
+      <button id="lucky" title="Open a random document">random</button>
+      <button id="help"  title="Keyboard shortcuts and search syntax (?)">?</button>
+      <button id="theme" title="Toggle theme (t)">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="sidebar" id="sidebar"></aside>
+    <section class="content" id="content">
+      <div class="loading">loading…</div>
+    </section>
+  </main>
+
+</div>
+
+<div class="overlay" id="helpOverlay">
+  <div class="panel">
+    <h3>Search syntax</h3>
+    <table>
+      <tr><td><kbd>cat:crypto</kbd></td><td>restrict to a category</td></tr>
+      <tr><td><kbd>type:cheatsheet</kbd></td><td>playbook · cheatsheet · technique · script · writeup · tool · reference</td></tr>
+      <tr><td><kbd>tag:rsa</kbd></td><td>require an exact tag</td></tr>
+      <tr><td><kbd>diff:hard</kbd></td><td>trivial · easy · medium · hard · insane</td></tr>
+      <tr><td><kbd>ctf:sekai</kbd></td><td>match the CTF name</td></tr>
+      <tr><td><kbd>tool:pwntools</kbd></td><td>documents that use a tool</td></tr>
+      <tr><td><kbd>"exact phrase"</kbd></td><td>phrase match</td></tr>
+    </table>
+    <p style="color:var(--fg-dim);font-size:13px;margin:14px 0 4px">
+      Queries are expanded automatically: <kbd>gcd</kbd> also finds common-factor and batch-GCD material,
+      <kbd>penguin</kbd> finds ECB.
+    </p>
+
+    <h3 style="margin-top:22px">Keyboard</h3>
+    <table>
+      <tr><td><kbd>/</kbd></td><td>focus search</td></tr>
+      <tr><td><kbd>j</kbd> <kbd>k</kbd></td><td>move through results</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>open the selected result</td></tr>
+      <tr><td><kbd>Backspace</kbd></td><td>back</td></tr>
+      <tr><td><kbd>h</kbd></td><td>home</td></tr>
+      <tr><td><kbd>t</kbd></td><td>toggle theme</td></tr>
+      <tr><td><kbd>?</kbd></td><td>this panel</td></tr>
+    </table>
+    <p style="margin-top:18px"><button data-close>close</button></p>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

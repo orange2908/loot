@@ -1,0 +1,30 @@
+# Generated search index and caches
+data/index.db
+data/index.db-wal
+data/index.db-shm
+data/index.building*
+data/raw/
+data/cache/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Scratch
+/tmp/
+scratch/
+
+# Vendored source checkouts (re-created by `make ingest-vendor`)
+data/raw/vendor-src/

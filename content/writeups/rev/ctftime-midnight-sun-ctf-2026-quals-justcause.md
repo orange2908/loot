@@ -1,0 +1,62 @@
+---
+title: "justcause - Midnight Sun CTF 2026 Quals"
+category: "rev"
+subcategory: "heap"
+type: "writeup"
+tags: ["rev", "heap", "wasm", "justcause", "midnight-sun-ctf-2026-quals", "2026", "ctf-writeup"]
+summary: "The challenge is a patched JavaScriptCore build."
+source:
+  name: "CTFtime writeup #40812"
+  url: "https://ctftime.org/writeup/40812"
+original_source: "https://blog.rawpayload.com/blog/midnight-sun-ctf-2026-justcause-writeup"
+ctf:
+  name: "Midnight Sun CTF 2026 Quals"
+  year: 2026
+  challenge: "justcause"
+---
+
+## Metadata
+
+- **CTF:** Midnight Sun CTF 2026 Quals
+- **Task:** justcause
+- **Author team:** rawpayload
+- **CTFtime:** <https://ctftime.org/writeup/40812>
+- **Original writeup:** <https://blog.rawpayload.com/blog/midnight-sun-ctf-2026-justcause-writeup>
+
+---
+The challenge is a patched JavaScriptCore build. The native justcause binary is only a thin JavaScript loader; the vulnerability is in the supplied WebKit patch.
+
+justcause-dist/  
+├── [dist.md](http://dist.md)  
+├── justcause  
+├── libs/  
+│ └── libJavaScriptCore.so.1  
+├── notimportant.patch  
+└── p.patch  
+[dist.md](http://dist.md) states that notimportant.patch is only the helper wrapper and that the real challenge patch is p.patch.
+
+The wrapper does three things:
+
+Reads a decimal script size.  
+Reads that many bytes minus one into a heap buffer and appends a NUL.  
+Creates a JavaScriptCore global context, installs a print() callback, and evaluates the submitted JavaScript.  
+So the wrapper is not the target. The exploit must be JavaScript.
+
+Patch review  
+The entire relevant patch is:
+
+```  
+diff --git a/Source/JavaScriptCore/wasm/WasmStreamingParser.cpp b/Source/JavaScriptCore/wasm/WasmStreamingParser.cpp  
+@@ -124,7 +124,6 @@ auto StreamingParser::parseSectionID(Vector<uint8_t>&& data) -> State  
+Section section = Section::Custom;  
+WASM_PARSER_FAIL_IF(!decodeSection(*result, section), "invalid section");  
+ASSERT(section != Section::Begin);  
+\- WASM_PARSER_FAIL_IF(!validateOrder(m_previousKnownSection, section), "invalid section order, ", m_previousKnownSection, " followed by ", section);  
+m_section = section;  
+if (isKnownSection(section))  
+m_previousKnownSection = section;  
+```
+
+WebAssembly known sections have a strict order. For example, Import must appear before Function, and Export must appear before Code. Removing this check means the streaming parser accepts known sections after sections that should have closed the module layout.
+
+The important detail is that this is in the streaming parser. Non-streaming WebAssembly.compile() still uses the ordinary module parser path and is not the interesting entry point.

@@ -1,0 +1,25 @@
+---
+title: "classic - SECCON Quals 2018"
+category: "pwn"
+subcategory: "stack"
+type: "writeup"
+tags: ["pwn", "buffer-overflow", "stack-pivot", "one-gadget", "aslr", "pivoting"]
+summary: "In SECCON 2018 - classic challenge, there is a stack overflow vulnerability which leads to overwriting the return address."
+source:
+  name: "sajjadium/ctf-writeups"
+  url: "https://github.com/sajjadium/ctf-writeups/blob/1fed8bd75274fd50981977a845d961ecd7dd99ef/ctfs/SECCON/2018/Quals/classic/README.md"
+ctf:
+  name: "SECCON Quals"
+  year: 2018
+  challenge: "classic"
+---
+
+## Source
+
+- **CTF:** SECCON Quals 2018
+- **Challenge:** classic
+- **Repository:** [sajjadium/ctf-writeups](https://github.com/sajjadium/ctf-writeups)
+- **File:** <https://github.com/sajjadium/ctf-writeups/blob/1fed8bd75274fd50981977a845d961ecd7dd99ef/ctfs/SECCON/2018/Quals/classic/README.md>
+
+---
+In `SECCON 2018 - classic` challenge, there is a `stack overflow` vulnerability which leads to overwriting the `return` address. Using `return oriented programming (ROP)`, we first leak `puts@GOT` address to find `libc` base address, write another `ROP` payload into `.bss` by calling `gets@GOT`, and move the control to the payload in `.bss` using `stack pivoting` which jumps to `one gadget` to execute `/bin/sh`. This is an interesting `ROP` challenge to learn bypassing protections like `NX`, `Partial RELRO`, and `ASLR` in `x86_64` binaries.

@@ -1,0 +1,97 @@
+---
+title: "coinflip - Nullcon Goa HackIM 2025 CTF"
+category: "crypto"
+subcategory: "pow"
+type: "writeup"
+tags: ["crypto", "gcd", "proof-of-work", "coinflip", "pow", "nullcon-goa-hackim-2025-ctf", "2025", "ctf-writeup"]
+summary: "[chall.py](<https://ctf.nullcon.net/files/07874925ac0e0176fdd998e82a22476a/chall.py?token=eyJ1c2VyX2lkIjoyNDAzLCJ0ZWFtX2lkIjo5MjIsImZpbGVfaWQiOjY4fQ.Z58-LQ.PvCjhcRw0UBtTP4nMkab-dDVyv0>) contains a pse"
+source:
+  name: "CTFtime writeup #39856"
+  url: "https://ctftime.org/writeup/39856"
+original_source: "https://gopherhack.com/posts/nullcongoahackim2025ctf-coinflip/"
+ctf:
+  name: "Nullcon Goa HackIM 2025 CTF"
+  year: 2025
+  challenge: "coinflip"
+---
+
+## Metadata
+
+- **CTF:** Nullcon Goa HackIM 2025 CTF
+- **Task:** coinflip
+- **Author team:** GopherHack
+- **CTFtime:** <https://ctftime.org/writeup/39856>
+- **Original writeup:** <https://gopherhack.com/posts/nullcongoahackim2025ctf-coinflip/>
+
+---
+### Problem Summary
+
+[[chall.py](http://chall.py)](<https://ctf.nullcon.net/files/07874925ac0e0176fdd998e82a22476a/chall.py?token=eyJ1c2VyX2lkIjoyNDAzLCJ0ZWFtX2lkIjo5MjIsImZpbGVfaWQiOjY4fQ.Z58-LQ.PvCjhcRw0UBtTP4nMkab-dDVyv0>) contains a pseudo-RNG `CRG` that randomly generates  
+\- a 64-bit modulus `self.m`  
+\- a relatively prime parameter `self.a`, and  
+\- a relatively prime initial state `self.state`.
+
+```py  
+def __init__(self, n):  
+'''n - bitlength of state'''  
+self.n = n  
+self.m = getRandomNBitInteger(n)  
+while True:  
+self.a = bytes_to_long(os.urandom(n >> 3)) % self.m # n/8 bytes  
+if math.gcd(self.a, self.m) == 1: break  
+while True:  
+self.state = bytes_to_long(os.urandom(n >> 3)) % self.m # n/8 bytes  
+if math.gcd(self.state, self.m) == 1: break  
+self.buffer = []  
+```
+
+This pseudo-RNG yields random bits by enumerating the bits of `self.state`, generating a new state `self.state = self.a * pow(self.state, 3, self.m) % self.m` when the bits run out.  
+```py  
+def next(self):  
+if self.buffer == []:  
+self.buffer = [int(bit) for bit in bin(self.state)[2:].zfill(self.n)]  
+self.state = self.a * pow(self.state, 3, self.m) % self.m  
+#log('new state: ', self.state)  
+return self.buffer.pop(0)  
+```
+
+The pseudo-RNG is used to generate a series of coin flips. We can either gain money by guessing a coin flip correctly or lose money by guessing incorrectly. Our goal is to gain enough money to reach a `balance` of at least `1000000000`.
+
+### Solution
+
+Observe that we only need to know one bit in `self.state` before it is revealed. We will bet an amount of 1 whenever we are unsure of the next bit and an amount of our whole `balance` when we are sure. On average, our 1 bets will contribute an amount of 0 while our `balance` bets will double our balance, meaning our balance will grow exponentially.
+
+For the bit that we aim to know, we focus our attention to the units bit, as it is special and can sometimes be predicted when doing these types of operations. In particular, if `self.m` is even, then `self.a` and `self.state` are guaranteed to be odd as they are relatively prime to `self.m`. When this happens, `self.state` starts out as odd, and `self.a * pow(self.state, 3, self.m) % self.m` will continue to be odd. As such, in this case we can reliably predict units bit (i.e. every 64th bit) to be a 1.
+
+The script below predicts `head` (0) for all non-units bits (as it is slightly more frequent due to [Benford's law](<https://en.wikipedia.org/wiki/Benford%27s_law>)) and `tails` (1) for all units bits. We'll rerun the script until we obtain a `m` that is even and luckily gain enough `balance` so that the bets of amount 1 are not enough to bankrupt us.
+
+```py  
+from pwn import *
+
+r = remote("52.59.124.14", 5032)
+
+try:  
+cnt = 0  
+while True:  
+for i in range(64):  
+print((line := r.recvline().strip()))  
+amount = int(line[line.find(b"(you have ") + 10:line.find(b")")])  
+if i < 63:  
+r.sendline(b"1")  
+print(r.recvline())  
+r.sendline(b"head")  
+else:  
+r.sendline(bytes(str(amount), "utf-8"))  
+print(r.recvline())  
+r.sendline(b"tails")
+
+print(line := r.recvline().strip())  
+win = line == b"you win"
+
+cnt += 1  
+except Exception as e:  
+while True:  
+print(r.recvline())  
+```
+
+Flag: `ENO{1nfin1t3_r1che5_3re_y0ur5_1t_s33m5}`

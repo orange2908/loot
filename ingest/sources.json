@@ -1,0 +1,20 @@
+[
+ {
+  "repo": "minaminao/my-ctf-challenges",
+  "slug": "minaminao-my-ctf-challenges",
+  "branch": "main",
+  "description": "CTF challenges created by @minaminao",
+  "stars": 24,
+  "licence": "none stated",
+  "note": "Challenge author, strong on blockchain/EVM and Solana"
+ },
+ {
+  "repo": "arkark/my-ctf-challenges",
+  "slug": "arkark-my-ctf-challenges",
+  "branch": "main",
+  "description": "CTF challenges I created 🚩",
+  "stars": 87,
+  "licence": "none stated",
+  "note": "Challenge author, strong on web and JS sandbox"
+ }
+]

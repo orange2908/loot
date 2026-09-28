@@ -1,0 +1,59 @@
+---
+title: "Simple Format Returned - MetaCtf 2021"
+category: "pwn"
+subcategory: "format-string"
+type: "writeup"
+tags: ["pwn", "format-string", "aslr", "simple", "format", "returned"]
+summary: "was a pwn challenge from MetaCTF 2021."
+source:
+  name: "nobodyisnobody/write-ups"
+  url: "https://github.com/nobodyisnobody/write-ups/blob/b9cec85168dd73a9e9329b44420024c64f48b8c1/MetaCtf.2021/pwn/Simple.Format.Returned/README.md"
+ctf:
+  name: "MetaCtf"
+  year: 2021
+  challenge: "Simple Format Returned"
+---
+
+## Source
+
+- **CTF:** MetaCtf 2021
+- **Challenge:** Simple Format Returned
+- **Repository:** [nobodyisnobody/write-ups](https://github.com/nobodyisnobody/write-ups)
+- **File:** <https://github.com/nobodyisnobody/write-ups/blob/b9cec85168dd73a9e9329b44420024c64f48b8c1/MetaCtf.2021/pwn/Simple.Format.Returned/README.md>
+
+---
+# Simple Format Returned
+# 
+was a pwn challenge from MetaCTF 2021.
+
+It is a format string vulnerability. A classic.
+
+you can spot the vuln here in the reverse:
+
+![](https://github.com/nobodyisnobody/write-ups/raw/main/MetaCtf.2021/pwn/Simple.Format.Returned/pics/vuln.png)
+
+The exploitation is classic also , but not easy as it needs to have a good ASLR to work.
+
+We leak libc & stack address with the format string, and wait for the MSB byte of 32bit addresses to be small...
+
+as it is not a blind format string, all the data we send , will be sent us back, so for the program not to timeout , it needs a small MSB byte in both libc & stack mapping address..
+
+this could take time ,and numerous tries...
+
+to see a more in depth explanation on how format string exploitation works, how to have a return to main, etc, 
+
+take a look at my previous write-up for another format string challenge:
+
+[https://github.com/nobodyisnobody/write-ups/tree/main/DigitalOverdose.2021/pwn/uncurved](https://github.com/nobodyisnobody/write-ups/tree/main/DigitalOverdose.2021/pwn/uncurved)
+
+it explains in details, how to exploit this...
+
+the exploit code:
+
+![](https://github.com/nobodyisnobody/write-ups/raw/main/MetaCtf.2021/pwn/Simple.Format.Returned/pics/code.png)
+
+Here is the exploit in action (a bit edited it to cut the waiting parts...)
+
+![](https://github.com/nobodyisnobody/write-ups/raw/main/MetaCtf.2021/pwn/Simple.Format.Returned/pics/format.gif)
+
+*nobodyisnobody still pwning things...*

@@ -1,0 +1,99 @@
+---
+title: "Omega-One - cactf 2022"
+category: "rev"
+subcategory: "static-analysis"
+type: "writeup"
+tags: ["rev", "ghidra", "omega-one", "static-analysis", "reverse-engineering", "cactf"]
+summary: "As usual, download the downloadable file and unzip it."
+source:
+  name: "siunam321.github.io"
+  url: "https://siunam321.github.io/ctf/cactf2022/Reversing/Omega-One/"
+original_source:
+  name: "siunam321/siunam321.github.io"
+  url: "https://github.com/siunam321/siunam321.github.io/blob/87b2af97016b8b5def0b3ffc0b37a6e89d876d95/ctf/cactf2022/Reversing/Omega-One/README.md"
+ctf:
+  name: "cactf"
+  year: 2022
+  challenge: "Omega-One"
+---
+
+## Source
+
+- **CTF:** cactf 2022
+- **Challenge:** Omega-One
+- **Author:** [siunam321](https://siunam321.github.io/)
+- **Writeup:** <https://siunam321.github.io/ctf/cactf2022/Reversing/Omega-One/>
+- **Source file:** <https://github.com/siunam321/siunam321.github.io/blob/87b2af97016b8b5def0b3ffc0b37a6e89d876d95/ctf/cactf2022/Reversing/Omega-One/README.md>
+
+---
+# Background
+![background1](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/background1.png)
+
+![background2](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/background2.png)
+
+# Solution
+
+As usual, download the [downloadable file](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/rev_omega_one.zip) and unzip it.
+
+After unzip that zip file, we see 2 files: `omega-one` and `output.txt`.
+
+omega-one: 64-bit ELF executable
+
+output.txt: A list of name??
+
+![solution1](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/solution1.png)
+
+![solution2](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/solution2.png)
+
+Then we'll need to use any reverse engineering tools, like Ghidra.
+
+In the `FUN_00100b4c` or main function, we see there are some weird strings, and **those strings matches the list of names in output.txt.**
+
+![solution3](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/solution3.png)
+
+Let's compare them one by one!!
+
+```
+Crerceon	--> H
+Ezains		--> T
+Ummuh		--> B
+Zonnu		--> {
+Vinzo		--> l
+Cuzads		--> 1
+Emoi		--> n
+Ohols		--> 3
+Groz'ens	--> 4
+Ukox		--> r
+Ehnu		--> _
+Pheilons	--> t
+Cuzads		--> 1
+Khehlan		--> m
+Ohols		--> 3
+Ehnu		--> _
+Munis		--> b
+Inphas		--> u
+Pheilons	--> t
+Ehnu		--> _
+Dut		--> p
+Ukox		--> r
+Ohols		--> 3
+Pheilons	--> t
+Pheilons	--> t
+Zimil		--> y
+Ehnu		--> _
+Honzor		--> s
+Vinzo		--> l
+Ukteils		--> 0
+Falnain		--> w
+Dhohmu		--> !
+Baadix		--> }
+			|
+			+-> HTB{l1n34r_t1m3_but_pr3tty_sl0w!}
+```
+
+![flag](https://raw.githubusercontent.com/siunam321/CTF-Writeups/main/Cyber-Apocalypse-CTF-2022/Reversing/Omega-One/images/flag.png)
+
+And boom! Here you go!!
+
+# Flag
+`HTB{l1n34r_t1m3_but_pr3tty_sl0w!}`
